@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "colored-nametags",
+	"version": "${version}",
+	"name": "Colored Nametags",
+	"description": "Color your Name-tags with dyes, to display names in style.",
+	"authors": [
+		"Diiiaz"
+	],
+	"contact": {
+		"sources": ""
+	},
+	"license": "MIT",
+	"icon": "assets/colored-nametags/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+          "io.github.diiiaz.colored_nametags.Mod"
+		],
+		"client": [
+			"io.github.diiiaz.colored_nametags.ModClient"
+		]
+	},
+	"mixins": [
+		"colored-nametags.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.15.10",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	},
+	"custom": {
+		"loom:injected_interfaces": {
+			"net/minecraft/class_1807": ["net/minecraft/class_1768"]
+		}
+	}
+}

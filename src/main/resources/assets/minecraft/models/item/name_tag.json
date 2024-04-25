@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "colored-nametags:item/name_tag",
+    "layer1": "colored-nametags:item/name_tag_overlay"
+  }
+}
