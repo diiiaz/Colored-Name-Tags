@@ -21,10 +21,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.awt.*;
+import java.util.Objects;
 
 @Mixin(NameTagItem.class)
 public class NameTagItemMixin extends Item implements DyeableItem {
-
 
     public NameTagItemMixin(Settings settings) {
         super(settings);
@@ -33,7 +33,7 @@ public class NameTagItemMixin extends Item implements DyeableItem {
     @Inject(method = "useOnEntity", at = @At("HEAD"), cancellable = true)
     private void useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         if (!(entity instanceof PlayerEntity)) {
-            if (!user.getWorld().isClient() && entity.isAlive()) {
+            if (!user.getWorld().isClient && entity.isAlive()) {
 
                 entity.setCustomName(getNewName(stack, entity));
 
@@ -42,9 +42,12 @@ public class NameTagItemMixin extends Item implements DyeableItem {
                 }
                 stack.decrement(1);
             }
-            cir.setReturnValue(ActionResult.success(user.getWorld().isClient()));
+            cir.setReturnValue(ActionResult.success(user.getWorld().isClient));
+            cir.cancel();
+            return;
         }
         cir.setReturnValue(ActionResult.PASS);
+        cir.cancel();
     }
 
     @Unique
@@ -60,22 +63,24 @@ public class NameTagItemMixin extends Item implements DyeableItem {
             int decimalColor = dyeableItem.getColor(stack);
             style = Style.EMPTY.withColor(decimalToRGB(decimalColor));
         }
-        String nameText = stack.hasCustomName() ? stack.getName().getString() : entity.hasCustomName() ? entity.getCustomName().getString() : entity.getName().getString();
+        String nameText = stack.hasCustomName() ? stack.getName().getString() : entity.hasCustomName() ? Objects.requireNonNull(entity.getCustomName()).getString() : entity.getName().getString();
         return Text.literal(nameText).setStyle(style);
     }
 
     // we do it like that because the method getRGB() from the Color class return a rgb value with alpha,
     // and we don't want alpha set on the custom name, so it has to be homemade. (unless there is already a method for this conversion ouch)
+    @Unique
     int decimalToRGB(int decimal) {
         Color color = new Color(decimal);
         int red = color.getRed();
         int green = color.getGreen();
         int blue = color.getBlue();
-        return rgbToInt(red, green, blue);
+        return composeRGB(red, green, blue);
 
     }
 
-    int rgbToInt(int red, int green, int blue) {
+    @Unique
+    int composeRGB(int red, int green, int blue) {
         red = MathHelper.clamp(red, 0, 255);
         green = MathHelper.clamp(green, 0, 255);
         blue = MathHelper.clamp(blue, 0, 255);
